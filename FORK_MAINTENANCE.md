@@ -68,7 +68,7 @@ git merge upstream/main
 # 4. cometix 版本发布为 latest
 elif [[ "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+-cometix(\.[0-9]+)?$ ]]; then
   echo "should_publish=true" >> "$GITHUB_OUTPUT"
-  echo "npm_tag=" >> "$GITHUB_OUTPUT"  # 空字符串 = latest
+  echo "npm_tag=latest" >> "$GITHUB_OUTPUT"  # 显式指定 latest（预发布版本必须指定 tag）
 
 # 5. npm scope 为 @cometix
 scope: "@cometix"
