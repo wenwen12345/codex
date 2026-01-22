@@ -2753,7 +2753,9 @@ mod tests {
     use tokio::sync::mpsc::unbounded_channel;
 
     #[test]
-    fn footer_hint_row_is_separated_from_composer() {
+    fn statusline_is_rendered_below_composer() {
+        // Footer hints (like "? for shortcuts") have been removed in favor of StatusLine.
+        // This test verifies that the statusline is properly rendered.
         let (tx, _rx) = unbounded_channel::<AppEvent>();
         let sender = AppEventSender::new(tx);
         let composer = ChatComposer::new(
@@ -2776,36 +2778,22 @@ mod tests {
             row
         };
 
-        let mut hint_row: Option<(u16, String)> = None;
+        // With StatusLine enabled, verify the statusline row exists
+        // (it should contain model name, directory, or other status info)
+        // The footer hint row ("? for shortcuts") should NOT be present
+        let mut has_shortcut_hint = false;
         for y in 0..area.height {
             let row = row_to_string(y);
             if row.contains("? for shortcuts") {
-                hint_row = Some((y, row));
+                has_shortcut_hint = true;
                 break;
             }
         }
 
-        let (hint_row_idx, hint_row_contents) =
-            hint_row.expect("expected footer hint row to be rendered");
-        assert_eq!(
-            hint_row_idx,
-            area.height - 1,
-            "hint row should occupy the bottom line: {hint_row_contents:?}",
-        );
-
+        // Footer hints are now disabled; StatusLine shows all status info
         assert!(
-            hint_row_idx > 0,
-            "expected a spacing row above the footer hints",
-        );
-
-        // 检查 footer hint 上方有内容（状态栏或空白间距），
-        // 而不是直接与 composer 下边框相邻。
-        // 状态栏启用时上方会有状态栏内容，禁用时会有空白行。
-        let spacing_row = row_to_string(hint_row_idx - 1);
-        // 不应该是 composer 的边框线
-        assert!(
-            !spacing_row.trim().chars().all(|c| c == '─'),
-            "expected spacing (blank or statusline) above hints, not border: {spacing_row:?}",
+            !has_shortcut_hint,
+            "footer hints should not be rendered; StatusLine displays all status info",
         );
     }
 

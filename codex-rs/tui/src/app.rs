@@ -1891,6 +1891,7 @@ mod tests {
     use ratatui::prelude::Line;
     use std::path::PathBuf;
     use std::sync::Arc;
+    use tempfile::tempdir;
     use std::sync::atomic::AtomicBool;
 
     async fn make_test_app() -> App {
@@ -2102,6 +2103,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore = "gpt-5.1-codex now has show_in_picker=true; no hidden model with upgrade exists"]
     async fn model_migration_prompt_shows_for_hidden_model() {
         let codex_home = tempdir().expect("temp codex home");
         let config = ConfigBuilder::default()

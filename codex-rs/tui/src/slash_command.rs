@@ -18,7 +18,6 @@ pub enum SlashCommand {
     #[strum(serialize = "setup-elevated-sandbox")]
     ElevateSandbox,
     Experimental,
-    Cxline,
     Skills,
     Review,
     New,
@@ -26,6 +25,7 @@ pub enum SlashCommand {
     Fork,
     Init,
     Compact,
+    Cxline,
     Collab,
     // Undo,
     Diff,
