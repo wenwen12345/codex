@@ -154,6 +154,11 @@ client_request_definitions! {
         params: v2::ModelListParams,
         response: v2::ModelListResponse,
     },
+    /// EXPERIMENTAL - list collaboration mode presets.
+    CollaborationModeList => "collaborationMode/list" {
+        params: v2::CollaborationModeListParams,
+        response: v2::CollaborationModeListResponse,
+    },
 
     McpServerOauthLogin => "mcpServer/oauth/login" {
         params: v2::McpServerOauthLoginParams,
@@ -503,6 +508,12 @@ server_request_definitions! {
     FileChangeRequestApproval => "item/fileChange/requestApproval" {
         params: v2::FileChangeRequestApprovalParams,
         response: v2::FileChangeRequestApprovalResponse,
+    },
+
+    /// EXPERIMENTAL - Request input from the user for a tool call.
+    ToolRequestUserInput => "item/tool/requestUserInput" {
+        params: v2::ToolRequestUserInputParams,
+        response: v2::ToolRequestUserInputResponse,
     },
 
     /// DEPRECATED APIs below
@@ -873,6 +884,23 @@ mod tests {
                     "limit": null,
                     "cursor": null
                 }
+            }),
+            serde_json::to_value(&request)?,
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_list_collaboration_modes() -> Result<()> {
+        let request = ClientRequest::CollaborationModeList {
+            request_id: RequestId::Integer(7),
+            params: v2::CollaborationModeListParams::default(),
+        };
+        assert_eq!(
+            json!({
+                "method": "collaborationMode/list",
+                "id": 7,
+                "params": {}
             }),
             serde_json::to_value(&request)?,
         );

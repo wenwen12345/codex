@@ -14,6 +14,7 @@ pub enum SlashCommand {
     // more frequently used commands should be listed first.
     Model,
     Approvals,
+    Permissions,
     #[strum(serialize = "setup-elevated-sandbox")]
     ElevateSandbox,
     Experimental,
@@ -25,6 +26,7 @@ pub enum SlashCommand {
     Fork,
     Init,
     Compact,
+    Collab,
     // Undo,
     Diff,
     Mention,
@@ -58,7 +60,9 @@ impl SlashCommand {
             SlashCommand::Status => "show current session configuration and token usage",
             SlashCommand::Ps => "list background terminals",
             SlashCommand::Model => "choose what model and reasoning effort to use",
+            SlashCommand::Collab => "change collaboration mode (experimental)",
             SlashCommand::Approvals => "choose what Codex can do without approval",
+            SlashCommand::Permissions => "choose what Codex is allowed to do",
             SlashCommand::ElevateSandbox => "set up elevated agent sandbox",
             SlashCommand::Experimental => "toggle beta features",
             SlashCommand::Cxline => "configure statusline appearance",
@@ -86,6 +90,7 @@ impl SlashCommand {
             // | SlashCommand::Undo
             | SlashCommand::Model
             | SlashCommand::Approvals
+            | SlashCommand::Permissions
             | SlashCommand::ElevateSandbox
             | SlashCommand::Experimental
             | SlashCommand::Cxline
@@ -102,6 +107,7 @@ impl SlashCommand {
             | SlashCommand::Exit => true,
             SlashCommand::Rollout => true,
             SlashCommand::TestApproval => true,
+            SlashCommand::Collab => true,
         }
     }
 

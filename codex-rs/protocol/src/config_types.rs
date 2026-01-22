@@ -66,6 +66,27 @@ pub enum SandboxMode {
 }
 
 #[derive(
+    Debug,
+    Serialize,
+    Deserialize,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Display,
+    JsonSchema,
+    TS,
+    PartialOrd,
+    Ord,
+)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
+pub enum Personality {
+    Friendly,
+    Pragmatic,
+}
+
+#[derive(
     Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Display, JsonSchema, TS, Default,
 )]
 #[serde(rename_all = "lowercase")]
@@ -130,12 +151,22 @@ pub enum AltScreenMode {
     Never,
 }
 
+/// Initial collaboration mode to use when the TUI starts.
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq, Hash, JsonSchema, TS)]
+#[serde(rename_all = "snake_case")]
+pub enum ModeKind {
+    Plan,
+    PairProgramming,
+    Execute,
+    Custom,
+}
+
 /// Collaboration mode for a Codex session.
 #[derive(Clone, PartialEq, Eq, Hash, Debug, Serialize, Deserialize, JsonSchema, TS)]
 #[serde(tag = "mode", rename_all = "lowercase")]
 pub enum CollaborationMode {
     Plan(Settings),
-    Collaborate(Settings),
+    PairProgramming(Settings),
     Execute(Settings),
     Custom(Settings),
 }
@@ -145,7 +176,7 @@ impl CollaborationMode {
     fn settings(&self) -> &Settings {
         match self {
             CollaborationMode::Plan(settings)
-            | CollaborationMode::Collaborate(settings)
+            | CollaborationMode::PairProgramming(settings)
             | CollaborationMode::Execute(settings)
             | CollaborationMode::Custom(settings) => settings,
         }
@@ -182,7 +213,9 @@ impl CollaborationMode {
 
         match self {
             CollaborationMode::Plan(_) => CollaborationMode::Plan(updated_settings),
-            CollaborationMode::Collaborate(_) => CollaborationMode::Collaborate(updated_settings),
+            CollaborationMode::PairProgramming(_) => {
+                CollaborationMode::PairProgramming(updated_settings)
+            }
             CollaborationMode::Execute(_) => CollaborationMode::Execute(updated_settings),
             CollaborationMode::Custom(_) => CollaborationMode::Custom(updated_settings),
         }

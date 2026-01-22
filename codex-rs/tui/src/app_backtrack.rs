@@ -93,8 +93,9 @@ pub(crate) struct PendingBacktrackRollback {
 impl App {
     /// Route overlay events while the transcript overlay is active.
     ///
-    /// If backtrack preview is active, Esc steps the selection and Enter confirms it.
-    /// Otherwise, Esc begins preview mode and all other events are forwarded to the overlay.
+    /// If backtrack preview is active, Esc / Left steps selection, Right steps forward, Enter
+    /// confirms. Otherwise, Esc begins preview mode and all other events are forwarded to the
+    /// overlay.
     pub(crate) async fn handle_backtrack_overlay_event(
         &mut self,
         tui: &mut tui::Tui,
@@ -114,6 +115,22 @@ impl App {
                     ..
                 }) => {
                     self.overlay_step_backtrack(tui, event)?;
+                    Ok(true)
+                }
+                TuiEvent::Key(KeyEvent {
+                    code: KeyCode::Left,
+                    kind: KeyEventKind::Press | KeyEventKind::Repeat,
+                    ..
+                }) => {
+                    self.overlay_step_backtrack(tui, event)?;
+                    Ok(true)
+                }
+                TuiEvent::Key(KeyEvent {
+                    code: KeyCode::Right,
+                    kind: KeyEventKind::Press | KeyEventKind::Repeat,
+                    ..
+                }) => {
+                    self.overlay_step_backtrack_forward(tui, event)?;
                     Ok(true)
                 }
                 TuiEvent::Key(KeyEvent {
@@ -193,7 +210,10 @@ impl App {
         });
         self.chat_widget.submit_op(Op::ThreadRollback { num_turns });
         if !prefill.is_empty() {
-            self.chat_widget.set_composer_text(prefill);
+            // TODO: Rehydrate text_elements/local_image_paths from the selected user cell so
+            // backtrack preserves image placeholders and attachments.
+            self.chat_widget
+                .set_composer_text(prefill, Vec::new(), Vec::new());
         }
     }
 
@@ -276,6 +296,27 @@ impl App {
             self.backtrack
                 .nth_user_message
                 .saturating_sub(1)
+                .min(last_index)
+        };
+
+        self.apply_backtrack_selection_internal(next_selection);
+        tui.frame_requester().schedule_frame();
+    }
+
+    /// Step selection to the next newer user message and update overlay.
+    fn step_forward_backtrack_and_highlight(&mut self, tui: &mut tui::Tui) {
+        let count = user_count(&self.transcript_cells);
+        if count == 0 {
+            return;
+        }
+
+        let last_index = count.saturating_sub(1);
+        let next_selection = if self.backtrack.nth_user_message == usize::MAX {
+            last_index
+        } else {
+            self.backtrack
+                .nth_user_message
+                .saturating_add(1)
                 .min(last_index)
         };
 
@@ -368,6 +409,20 @@ impl App {
     fn overlay_step_backtrack(&mut self, tui: &mut tui::Tui, event: TuiEvent) -> Result<()> {
         if self.backtrack.base_id.is_some() {
             self.step_backtrack_and_highlight(tui);
+        } else {
+            self.overlay_forward_event(tui, event)?;
+        }
+        Ok(())
+    }
+
+    /// Handle Right in overlay backtrack preview: step selection forward if armed, else forward.
+    fn overlay_step_backtrack_forward(
+        &mut self,
+        tui: &mut tui::Tui,
+        event: TuiEvent,
+    ) -> Result<()> {
+        if self.backtrack.base_id.is_some() {
+            self.step_forward_backtrack_and_highlight(tui);
         } else {
             self.overlay_forward_event(tui, event)?;
         }
@@ -512,6 +567,8 @@ mod tests {
         let mut cells: Vec<Arc<dyn HistoryCell>> = vec![
             Arc::new(UserHistoryCell {
                 message: "first user".to_string(),
+                text_elements: Vec::new(),
+                local_image_paths: Vec::new(),
             }) as Arc<dyn HistoryCell>,
             Arc::new(AgentMessageCell::new(vec![Line::from("assistant")], true))
                 as Arc<dyn HistoryCell>,
@@ -528,6 +585,8 @@ mod tests {
                 as Arc<dyn HistoryCell>,
             Arc::new(UserHistoryCell {
                 message: "first".to_string(),
+                text_elements: Vec::new(),
+                local_image_paths: Vec::new(),
             }) as Arc<dyn HistoryCell>,
             Arc::new(AgentMessageCell::new(vec![Line::from("after")], false))
                 as Arc<dyn HistoryCell>,
@@ -556,11 +615,15 @@ mod tests {
                 as Arc<dyn HistoryCell>,
             Arc::new(UserHistoryCell {
                 message: "first".to_string(),
+                text_elements: Vec::new(),
+                local_image_paths: Vec::new(),
             }) as Arc<dyn HistoryCell>,
             Arc::new(AgentMessageCell::new(vec![Line::from("between")], false))
                 as Arc<dyn HistoryCell>,
             Arc::new(UserHistoryCell {
                 message: "second".to_string(),
+                text_elements: Vec::new(),
+                local_image_paths: Vec::new(),
             }) as Arc<dyn HistoryCell>,
             Arc::new(AgentMessageCell::new(vec![Line::from("tail")], false))
                 as Arc<dyn HistoryCell>,
