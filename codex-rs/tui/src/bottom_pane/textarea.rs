@@ -1188,7 +1188,7 @@ impl TextArea {
                     self.text[self.cursor_pos..]
                         .graphemes(true)
                         .next()
-                        .map(|g| g.width())
+                        .map(unicode_width::UnicodeWidthStr::width)
                         .unwrap_or(1)
                 } else {
                     // Cursor is at end of line, use width 1 for block cursor
@@ -1198,10 +1198,10 @@ impl TextArea {
                 // Apply reverse style to all cells occupied by this character
                 for offset in 0..char_width {
                     let x = cursor_screen_x + offset as u16;
-                    if x < area.x + area.width {
-                        if let Some(cell) = buf.cell_mut((x, y)) {
-                            cell.set_style(cell.style().add_modifier(Modifier::REVERSED));
-                        }
+                    if x < area.x + area.width
+                        && let Some(cell) = buf.cell_mut((x, y))
+                    {
+                        cell.set_style(cell.style().add_modifier(Modifier::REVERSED));
                     }
                 }
             }
