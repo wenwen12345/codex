@@ -38,7 +38,7 @@ expression: term.backend().vt100().screen().contents()
 • Investigating rendering code (0s • esc to interrupt)
 
 ────────────────────────────────────────────────────────────────────────────────
-❯ Summarize recent commits
+❯ Summarize recent commits 
 ────────────────────────────────────────────────────────────────────────────────
    GPT 5.2 Codex │ 󰉋 tui │  - · - tokens
   tab to queue message

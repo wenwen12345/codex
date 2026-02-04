@@ -15,6 +15,7 @@
 - [Skills](#skills)
 - [Apps](#apps)
 - [Auth endpoints](#auth-endpoints)
+- [Adding an experimental field](#adding-an-experimental-field)
 
 ## Protocol
 
@@ -89,9 +90,11 @@ Example (from OpenAI's official VSCode extension):
 - `turn/interrupt` — request cancellation of an in-flight turn by `(thread_id, turn_id)`; success is an empty `{}` response and the turn finishes with `status: "interrupted"`.
 - `review/start` — kick off Codex’s automated reviewer for a thread; responds like `turn/start` and emits `item/started`/`item/completed` notifications with `enteredReviewMode` and `exitedReviewMode` items, plus a final assistant `agentMessage` containing the review.
 - `command/exec` — run a single command under the server sandbox without starting a thread/turn (handy for utilities and validation).
-- `model/list` — list available models (with reasoning effort options).
+- `model/list` — list available models (with reasoning effort options and optional `upgrade` model ids).
 - `collaborationMode/list` — list available collaboration mode presets (experimental, no pagination).
 - `skills/list` — list skills for one or more `cwd` values (optional `forceReload`).
+- `skills/remote/read` — list public remote skills (**under development; do not call from production clients yet**).
+- `skills/remote/write` — download a public remote skill by `hazelnutId`; `isPreload=true` writes to `.codex/vendor_imports/skills` under `codex_home` (**under development; do not call from production clients yet**).
 - `app/list` — list available apps.
 - `skills/config/write` — write user-level skill config by path.
 - `mcpServer/oauth/login` — start an OAuth login for a configured MCP server; returns an `authorization_url` and later emits `mcpServer/oauthLogin/completed` once the browser flow finishes.
@@ -768,3 +771,31 @@ Field notes:
 - `usedPercent` is current usage within the OpenAI quota window.
 - `windowDurationMins` is the quota window length.
 - `resetsAt` is a Unix timestamp (seconds) for the next reset.
+
+## Adding an experimental field
+Use this checklist when introducing a field/method that should only be available when the client opts into experimental APIs.
+
+At runtime, clients must send `initialize` with `capabilities.experimentalApi = true` to use experimental methods or fields.
+
+1. Annotate the field in the protocol type (usually `app-server-protocol/src/protocol/v2.rs`) with:
+   ```rust
+   #[experimental("thread/start.myField")]
+   pub my_field: Option<String>,
+   ```
+2. Ensure the params type derives `ExperimentalApi` so field-level gating can be detected at runtime.
+
+3. In `app-server-protocol/src/protocol/common.rs`, keep the method stable and use `inspect_params: true` when only some fields are experimental (like `thread/start`). If the entire method is experimental, annotate the method variant with `#[experimental("method/name")]`.
+
+4. Regenerate protocol fixtures:
+
+   ```bash
+   just write-app-server-schema
+   # Include experimental API fields/methods in fixtures.
+   just write-app-server-schema --experimental
+   ```
+    
+5. Verify the protocol crate:
+
+   ```bash
+   cargo test -p codex-app-server-protocol
+   ```
