@@ -5,7 +5,7 @@ use codex_protocol::config_types::ModeKind;
 fn is_tui_mode(kind: ModeKind) -> bool {
     matches!(
         kind,
-        ModeKind::Plan | ModeKind::Code | ModeKind::PairProgramming | ModeKind::Execute
+        ModeKind::Plan | ModeKind::Default | ModeKind::PairProgramming | ModeKind::Execute
     )
 }
 
