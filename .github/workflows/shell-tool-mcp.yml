@@ -355,7 +355,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build (shell-tool-mcp)
-        run: pnpm --filter @cometix/codex-shell-tool-mcp run build
+        run: pnpm --filter @echoflux537/codex-shell-tool-mcp run build
 
       - name: Download build artifacts
         uses: actions/download-artifact@v7
@@ -441,7 +441,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: https://registry.npmjs.org
-          scope: "@cometix"
+          scope: "@echoflux537"
 
       # Trusted publishing requires npm CLI version 11.5.1 or later.
       - name: Update npm

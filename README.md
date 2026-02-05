@@ -1,5 +1,5 @@
-<p align="center"><code>npm i -g @cometix/codex</code></p>
-<p align="center"><strong>@cometix/codex</strong> — A customized fork of <a href="https://github.com/openai/codex">OpenAI Codex CLI</a>, the local coding agent that runs in your terminal.</p>
+<p align="center"><code>npm i -g @echoflux537/codex</code></p>
+<p align="center"><strong>@echoflux537/codex</strong> — A customized fork of <a href="https://github.com/openai/codex">OpenAI Codex CLI</a>, the local coding agent that runs in your terminal.</p>
 <p align="center">
   <img src="https://github.com/openai/codex/blob/main/.github/codex-cli-splash.png" alt="Codex CLI splash" width="80%" />
 </p>
@@ -9,7 +9,7 @@
 ## Install
 
 ```shell
-npm install -g @cometix/codex
+npm install -g @echoflux537/codex
 ```
 
 Then run `codex` to get started.
@@ -21,7 +21,7 @@ This fork includes the following enhancements over the upstream [openai/codex](h
 - **StatusLine (CxLine)** — Bottom status bar displaying model name, reasoning effort, usage percentage, and rate limit reset time
 - **Personality for all models** — The Personality feature is enabled for every model, not limited to select ones
 - **CJK block cursor fix** — Correct block cursor width for CJK characters on Windows Terminal
-- **Update detection via npm** — Version checking uses the `@cometix/codex` npm registry instead of GitHub releases
+- **Update detection via npm** — Version checking uses the `@echoflux537/codex` npm registry instead of GitHub releases
 
 ## Upstream Sync
 

@@ -1,10 +1,10 @@
 {
-  "name": "@cometix/codex-sdk",
+  "name": "@echoflux537/codex-sdk",
   "version": "0.0.0-dev",
   "description": "TypeScript SDK for Codex APIs.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Haleclipse/codex.git",
+    "url": "git+https://github.com/wenwen12345/codex.git",
     "directory": "sdk/typescript"
   },
   "keywords": [

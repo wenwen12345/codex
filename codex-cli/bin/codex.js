@@ -94,12 +94,19 @@ function detectPackageManager() {
   if (execPath.includes("bun")) {
     return "bun";
   }
+  if (execPath.includes("pnpm")) {
+    return "npm";
+  }
 
   if (
     __dirname.includes(".bun/install/global") ||
     __dirname.includes(".bun\\install\\global")
   ) {
     return "bun";
+  }
+
+  if (__dirname.includes(`${path.sep}.pnpm${path.sep}`)) {
+    return "npm";
   }
 
   return userAgent ? "npm" : null;
@@ -113,10 +120,9 @@ if (existsSync(pathDir)) {
 const updatedPath = getUpdatedPath(additionalDirs);
 
 const env = { ...process.env, PATH: updatedPath };
+const packageManager = detectPackageManager();
 const packageManagerEnvVar =
-  detectPackageManager() === "bun"
-    ? "CODEX_MANAGED_BY_BUN"
-    : "CODEX_MANAGED_BY_NPM";
+  packageManager === "bun" ? "CODEX_MANAGED_BY_BUN" : "CODEX_MANAGED_BY_NPM";
 env[packageManagerEnvVar] = "1";
 
 const child = spawn(binaryPath, process.argv.slice(2), {

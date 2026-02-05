@@ -6,7 +6,7 @@
 
 ```bash
 # 远程仓库配置
-origin    -> git@github.com:Haleclipse/codex.git  # Fork 仓库
+origin    -> git@github.com:wenwen12345/codex.git  # Fork 仓库
 upstream  -> https://github.com/openai/codex.git  # 上游仓库
 
 # 如果 upstream 不存在，添加：
@@ -44,15 +44,15 @@ git merge upstream/main
 
 | 文件 | 保留内容 |
 |------|---------|
-| `codex-cli/package.json` | `"name": "@cometix/codex"`, `"url": "git+https://github.com/Haleclipse/codex.git"` |
+| `codex-cli/package.json` | `"name": "@cometix/codex"`, `"url": "git+https://github.com/wenwen12345/codex.git"` |
 | `codex-cli/README.md` | Cometix 品牌、`@cometix/codex` 包名 |
-| `codex-rs/responses-api-proxy/npm/package.json` | `Haleclipse/codex` URL |
-| `shell-tool-mcp/package.json` | `Haleclipse/codex` URL |
-| `sdk/typescript/package.json` | `Haleclipse/codex` URL |
+| `codex-rs/responses-api-proxy/npm/package.json` | `wenwen12345/codex` URL |
+| `shell-tool-mcp/package.json` | `wenwen12345/codex` URL |
+| `sdk/typescript/package.json` | `wenwen12345/codex` URL |
 | `.github/workflows/rust-release.yml` | 见下方详细说明 |
 | `.github/dotslash-config.json` | 无 `windows-aarch64` 平台 |
-| `scripts/stage_npm_packages.py` | `GITHUB_REPO = "Haleclipse/codex"` |
-| `codex-cli/scripts/install_native_deps.py` | `Haleclipse/codex`, 无 `aarch64-pc-windows-msvc` |
+| `scripts/stage_npm_packages.py` | `GITHUB_REPO = "wenwen12345/codex"` |
+| `codex-cli/scripts/install_native_deps.py` | `wenwen12345/codex`, 无 `aarch64-pc-windows-msvc` |
 
 #### rust-release.yml 定制化内容
 
@@ -133,7 +133,7 @@ git reset --hard $MAIN_SHA
 npm 发布使用 OIDC 认证，需要在 npm 上配置：
 
 - **Package**: `@cometix/codex`
-- **Repository**: `Haleclipse/codex`
+- **Repository**: `wenwen12345/codex`
 - **Workflow**: `rust-release.yml`
 - **Environment**: 留空
 
@@ -173,22 +173,22 @@ Fork 定制化涉及的所有文件：
     └── rust-release.yml          # 免费 runners, cometix 配置
 
 codex-cli/
-├── package.json                  # @cometix scope, Haleclipse URL
+├── package.json                  # @cometix scope, wenwen12345 URL
 ├── README.md                     # Cometix 品牌
 └── scripts/
-    └── install_native_deps.py    # Haleclipse repo, 移除 aarch64-windows
+    └── install_native_deps.py    # wenwen12345 repo, 移除 aarch64-windows
 
 codex-rs/
 └── responses-api-proxy/
     └── npm/
-        └── package.json          # Haleclipse URL
+        └── package.json          # wenwen12345 URL
 
 scripts/
-└── stage_npm_packages.py         # Haleclipse repo
+└── stage_npm_packages.py         # wenwen12345 repo
 
 sdk/typescript/
-└── package.json                  # Haleclipse URL
+└── package.json                  # wenwen12345 URL
 
 shell-tool-mcp/
-└── package.json                  # Haleclipse URL
+└── package.json                  # wenwen12345 URL
 ```

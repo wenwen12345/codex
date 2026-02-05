@@ -20,7 +20,7 @@ from urllib.request import urlopen
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 CODEX_CLI_ROOT = SCRIPT_DIR.parent
-DEFAULT_WORKFLOW_URL = "https://github.com/Haleclipse/codex/actions/runs/21107751432"  # rust-v0.87.0-cometix
+DEFAULT_WORKFLOW_URL = "https://github.com/wenwen12345/codex/actions/runs/21107751432"  # rust-v0.87.0-cometix
 VENDOR_DIR_NAME = "vendor"
 RG_MANIFEST = CODEX_CLI_ROOT / "bin" / "rg"
 BINARY_TARGETS = (
@@ -265,7 +265,7 @@ def _download_artifacts(workflow_id: str, dest_dir: Path) -> None:
         "--dir",
         str(dest_dir),
         "--repo",
-        "Haleclipse/codex",
+        "wenwen12345/codex",
         workflow_id,
     ]
     subprocess.check_call(cmd)

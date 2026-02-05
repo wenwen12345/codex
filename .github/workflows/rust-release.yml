@@ -522,7 +522,7 @@ jobs:
         with:
           node-version: 22
           registry-url: "https://registry.npmjs.org"
-          scope: "@cometix"
+          scope: "@echoflux537"
 
       # Trusted publishing requires npm CLI version 11.5.1 or later.
       - name: Update npm
@@ -552,4 +552,3 @@ jobs:
             tag_args+=(--tag "${NPM_TAG}")
           fi
           npm publish "${GITHUB_WORKSPACE}/dist/npm/codex-npm-${VERSION}.tgz" "${tag_args[@]}"
-

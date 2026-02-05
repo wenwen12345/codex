@@ -1,5 +1,5 @@
 {
-  "name": "@cometix/codex-responses-api-proxy",
+  "name": "@echoflux537/codex-responses-api-proxy",
   "version": "0.0.0-dev",
   "license": "Apache-2.0",
   "bin": {
@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Haleclipse/codex.git",
+    "url": "git+https://github.com/wenwen12345/codex.git",
     "directory": "codex-rs/responses-api-proxy/npm"
   },
   "packageManager": "pnpm@10.28.2+sha512.41872f037ad22f7348e3b1debbaf7e867cfd448f2726d9cf74c08f19507c31d2c8e7a11525b983febc2df640b5438dee6023ebb1f84ed43cc2d654d2bc326264"

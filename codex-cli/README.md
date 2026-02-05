@@ -1,7 +1,7 @@
 <h1 align="center">Cometix Codex CLI</h1>
 <p align="center">Lightweight coding agent that runs in your terminal</p>
 
-<p align="center"><code>npm i -g @cometix/codex</code></p>
+<p align="center"><code>npm i -g @echoflux537/codex</code></p>
 
 > [!NOTE]
 > This is a fork of OpenAI Codex CLI maintained by Cometix. For the original project, see [openai/codex](https://github.com/openai/codex).
@@ -77,7 +77,7 @@ Help us improve by filing issues or submitting PRs (see the section below for ho
 Install globally:
 
 ```shell
-npm install -g @cometix/codex
+npm install -g @echoflux537/codex
 ```
 
 Next, set your OpenAI API key as an environment variable:
@@ -248,7 +248,7 @@ Run Codex head-less in pipelines. Example GitHub Action step:
 ```yaml
 - name: Update changelog via Codex
   run: |
-    npm install -g @cometix/codex
+    npm install -g @echoflux537/codex
     export OPENAI_API_KEY="${{ secrets.OPENAI_KEY }}"
     codex -a auto-edit --quiet "update CHANGELOG for next release"
 ```
@@ -287,13 +287,13 @@ Below are a few bite-size examples you can copy-paste. Replace the text in quote
 <summary><strong>From npm (Recommended)</strong></summary>
 
 ```bash
-npm install -g @cometix/codex
+npm install -g @echoflux537/codex
 # or
-yarn global add @cometix/codex
+yarn global add @echoflux537/codex
 # or
-bun install -g @cometix/codex
+bun install -g @echoflux537/codex
 # or
-pnpm add -g @cometix/codex
+pnpm add -g @echoflux537/codex
 ```
 
 </details>
@@ -527,7 +527,7 @@ Codex CLI **does** support OpenAI organizations with [Zero Data Retention (ZDR)]
 OpenAI rejected the request. Error details: Status: 400, Code: unsupported_parameter, Type: invalid_request_error, Message: 400 Previous response cannot be used for this organization due to Zero Data Retention.
 ```
 
-You may need to upgrade to a more recent version with: `npm i -g @cometix/codex@latest`
+You may need to upgrade to a more recent version with: `npm i -g @echoflux537/codex@latest`
 
 ---
 
