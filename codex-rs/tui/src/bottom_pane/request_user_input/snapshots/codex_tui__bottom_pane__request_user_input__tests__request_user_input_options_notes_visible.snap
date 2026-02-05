@@ -16,4 +16,4 @@ expression: "render_snapshot(&overlay, area)"
                                                                                                                         
   ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────  
      - · - tokens                                                                                                      
-  tab to clear notes | enter to submit answer | esc to interrupt
+  tab or esc to clear notes | enter to submit answer

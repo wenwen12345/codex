@@ -141,7 +141,7 @@ pub enum Feature {
     SkillEnvVarDependencyPrompt,
     /// Steer feature flag - when enabled, Enter submits immediately instead of queuing.
     Steer,
-    /// Enable collaboration modes (Plan, Code, Pair Programming, Execute).
+    /// Enable collaboration modes (Plan, Default).
     CollaborationModes,
     /// Enable personality selection in the TUI.
     Personality,
@@ -446,7 +446,7 @@ fn legacy_usage_notice(alias: &str, feature: Feature) -> (String, Option<String>
 }
 
 fn web_search_details() -> &'static str {
-    "Set `web_search` to `\"live\"`, `\"cached\"`, or `\"disabled\"` in config.toml."
+    "Set `web_search` to `\"live\"`, `\"cached\"`, or `\"disabled\"` at the top level (or under a profile) in config.toml."
 }
 
 /// Keys accepted in `[features]` tables.
@@ -495,6 +495,12 @@ pub const FEATURES: &[FeatureSpec] = &[
         default_enabled: true,
     },
     FeatureSpec {
+        id: Feature::UnifiedExec,
+        key: "unified_exec",
+        stage: Stage::Stable,
+        default_enabled: !cfg!(windows),
+    },
+    FeatureSpec {
         id: Feature::WebSearchRequest,
         key: "web_search_request",
         stage: Stage::Deprecated,
@@ -507,16 +513,6 @@ pub const FEATURES: &[FeatureSpec] = &[
         default_enabled: false,
     },
     // Experimental program. Rendered in the `/experimental` menu for users.
-    FeatureSpec {
-        id: Feature::UnifiedExec,
-        key: "unified_exec",
-        stage: Stage::Experimental {
-            name: "Background terminal",
-            menu_description: "Run long-running terminal commands in the background.",
-            announcement: "NEW! Try Background terminals for long-running commands. Enable in /experimental!",
-        },
-        default_enabled: false,
-    },
     FeatureSpec {
         id: Feature::ShellSnapshot,
         key: "shell_snapshot",
@@ -608,7 +604,11 @@ pub const FEATURES: &[FeatureSpec] = &[
     FeatureSpec {
         id: Feature::Collab,
         key: "collab",
-        stage: Stage::UnderDevelopment,
+        stage: Stage::Experimental {
+            name: "Sub-agents",
+            menu_description: "Ask Codex to spawn multiple agents to parallelize the work and win in efficiency.",
+            announcement: "NEW: Sub-agents can now be spawned by Codex. Enable in /experimental and restart Codex!",
+        },
         default_enabled: false,
     },
     FeatureSpec {

@@ -25,7 +25,7 @@ pub(crate) fn default_mask(models_manager: &ModelsManager) -> Option<Collaborati
     let presets = filtered_presets(models_manager);
     presets
         .iter()
-        .find(|mask| mask.mode == Some(ModeKind::Code))
+        .find(|mask| mask.mode == Some(ModeKind::Default))
         .cloned()
         .or_else(|| presets.into_iter().next())
 }
@@ -59,8 +59,8 @@ pub(crate) fn next_mask(
     presets.get(next_index).cloned()
 }
 
-pub(crate) fn code_mask(models_manager: &ModelsManager) -> Option<CollaborationModeMask> {
-    mask_for_kind(models_manager, ModeKind::Code)
+pub(crate) fn default_mode_mask(models_manager: &ModelsManager) -> Option<CollaborationModeMask> {
+    mask_for_kind(models_manager, ModeKind::Default)
 }
 
 pub(crate) fn plan_mask(models_manager: &ModelsManager) -> Option<CollaborationModeMask> {
