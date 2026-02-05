@@ -91,9 +91,11 @@ impl ExperimentalFeaturesView {
             };
             let marker = if item.enabled { 'x' } else { ' ' };
             let name = format!("{prefix} [{marker}] {}", item.name);
+            let stage = item.feature.stage().menu_label();
+            let description = format!("{} [{stage}]", item.description);
             rows.push(GenericDisplayRow {
                 name,
-                description: Some(item.description.clone()),
+                description: Some(description),
                 ..Default::default()
             });
         }

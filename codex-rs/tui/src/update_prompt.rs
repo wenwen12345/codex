@@ -39,12 +39,16 @@ pub(crate) async fn run_update_prompt_if_needed(
     let Some(latest_version) = updates::get_upgrade_version_for_popup(config) else {
         return Ok(UpdatePromptOutcome::Continue);
     };
-    let Some(update_action) = crate::update_action::get_update_action() else {
+    let update_actions = crate::update_action::get_update_actions();
+    if update_actions.is_empty() {
         return Ok(UpdatePromptOutcome::Continue);
     };
 
-    let mut screen =
-        UpdatePromptScreen::new(tui.frame_requester(), latest_version.clone(), update_action);
+    let mut screen = UpdatePromptScreen::new(
+        tui.frame_requester(),
+        latest_version.clone(),
+        update_actions,
+    );
     tui.draw(u16::MAX, |frame| {
         frame.render_widget_ref(&screen, frame.area());
     })?;
@@ -69,9 +73,9 @@ pub(crate) async fn run_update_prompt_if_needed(
     }
 
     match screen.selection() {
-        Some(UpdateSelection::UpdateNow) => {
+        Some(UpdateSelection::UpdateNow(action)) => {
             tui.terminal.clear()?;
-            Ok(UpdatePromptOutcome::RunUpdate(update_action))
+            Ok(UpdatePromptOutcome::RunUpdate(action))
         }
         Some(UpdateSelection::NotNow) | None => Ok(UpdatePromptOutcome::Continue),
         Some(UpdateSelection::DontRemind) => {
@@ -85,7 +89,7 @@ pub(crate) async fn run_update_prompt_if_needed(
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum UpdateSelection {
-    UpdateNow,
+    UpdateNow(UpdateAction),
     NotNow,
     DontRemind,
 }
@@ -94,8 +98,8 @@ struct UpdatePromptScreen {
     request_frame: FrameRequester,
     latest_version: String,
     current_version: String,
-    update_action: UpdateAction,
-    highlighted: UpdateSelection,
+    options: Vec<UpdateSelection>,
+    highlighted_idx: usize,
     selection: Option<UpdateSelection>,
 }
 
@@ -103,14 +107,21 @@ impl UpdatePromptScreen {
     fn new(
         request_frame: FrameRequester,
         latest_version: String,
-        update_action: UpdateAction,
+        update_actions: Vec<UpdateAction>,
     ) -> Self {
+        let mut options: Vec<UpdateSelection> = update_actions
+            .into_iter()
+            .map(UpdateSelection::UpdateNow)
+            .collect();
+        options.push(UpdateSelection::NotNow);
+        options.push(UpdateSelection::DontRemind);
+
         Self {
             request_frame,
             latest_version,
             current_version: env!("CARGO_PKG_VERSION").to_string(),
-            update_action,
-            highlighted: UpdateSelection::UpdateNow,
+            options,
+            highlighted_idx: 0,
             selection: None,
         }
     }
@@ -126,26 +137,57 @@ impl UpdatePromptScreen {
             return;
         }
         match key_event.code {
-            KeyCode::Up | KeyCode::Char('k') => self.set_highlight(self.highlighted.prev()),
-            KeyCode::Down | KeyCode::Char('j') => self.set_highlight(self.highlighted.next()),
-            KeyCode::Char('1') => self.select(UpdateSelection::UpdateNow),
-            KeyCode::Char('2') => self.select(UpdateSelection::NotNow),
-            KeyCode::Char('3') => self.select(UpdateSelection::DontRemind),
-            KeyCode::Enter => self.select(self.highlighted),
+            KeyCode::Up | KeyCode::Char('k') => self.highlight_prev(),
+            KeyCode::Down | KeyCode::Char('j') => self.highlight_next(),
+            KeyCode::Char(ch) if ch.is_ascii_digit() => self.select_by_number(ch),
+            KeyCode::Enter => self.select(self.options[self.highlighted_idx]),
             KeyCode::Esc => self.select(UpdateSelection::NotNow),
             _ => {}
         }
     }
 
-    fn set_highlight(&mut self, highlight: UpdateSelection) {
-        if self.highlighted != highlight {
-            self.highlighted = highlight;
+    fn highlight_prev(&mut self) {
+        let new_idx = if self.highlighted_idx == 0 {
+            self.options.len().saturating_sub(1)
+        } else {
+            self.highlighted_idx - 1
+        };
+        self.set_highlight(new_idx);
+    }
+
+    fn highlight_next(&mut self) {
+        let new_idx = if self.options.is_empty() {
+            0
+        } else {
+            (self.highlighted_idx + 1) % self.options.len()
+        };
+        self.set_highlight(new_idx);
+    }
+
+    fn set_highlight(&mut self, idx: usize) {
+        if self.highlighted_idx != idx {
+            self.highlighted_idx = idx;
             self.request_frame.schedule_frame();
         }
     }
 
+    fn select_by_number(&mut self, ch: char) {
+        let Some(digit) = ch.to_digit(10) else {
+            return;
+        };
+        if digit == 0 {
+            return;
+        }
+        let idx = (digit - 1) as usize;
+        if let Some(selection) = self.options.get(idx).copied() {
+            self.select(selection);
+        }
+    }
+
     fn select(&mut self, selection: UpdateSelection) {
-        self.highlighted = selection;
+        if let Some(idx) = self.options.iter().position(|opt| *opt == selection) {
+            self.highlighted_idx = idx;
+        }
         self.selection = Some(selection);
         self.request_frame.schedule_frame();
     }
@@ -164,19 +206,13 @@ impl UpdatePromptScreen {
 }
 
 impl UpdateSelection {
-    fn next(self) -> Self {
+    fn label(self) -> String {
         match self {
-            UpdateSelection::UpdateNow => UpdateSelection::NotNow,
-            UpdateSelection::NotNow => UpdateSelection::DontRemind,
-            UpdateSelection::DontRemind => UpdateSelection::UpdateNow,
-        }
-    }
-
-    fn prev(self) -> Self {
-        match self {
-            UpdateSelection::UpdateNow => UpdateSelection::DontRemind,
-            UpdateSelection::NotNow => UpdateSelection::UpdateNow,
-            UpdateSelection::DontRemind => UpdateSelection::NotNow,
+            UpdateSelection::UpdateNow(action) => {
+                format!("Update now (runs `{}`)", action.command_str())
+            }
+            UpdateSelection::NotNow => "Skip".to_string(),
+            UpdateSelection::DontRemind => "Skip until next version".to_string(),
         }
     }
 }
@@ -185,8 +221,6 @@ impl WidgetRef for &UpdatePromptScreen {
     fn render_ref(&self, area: Rect, buf: &mut Buffer) {
         Clear.render(area, buf);
         let mut column = ColumnRenderable::new();
-
-        let update_command = self.update_action.command_str();
 
         column.push("");
         column.push(Line::from(vec![
@@ -204,28 +238,20 @@ impl WidgetRef for &UpdatePromptScreen {
         column.push(
             Line::from(vec![
                 "Release notes: ".dim(),
-                "https://github.com/Haleclipse/codex/releases/latest"
+                "https://github.com/wenwen12345/codex/releases/latest"
                     .dim()
                     .underlined(),
             ])
             .inset(Insets::tlbr(0, 2, 0, 0)),
         );
         column.push("");
-        column.push(selection_option_row(
-            0,
-            format!("Update now (runs `{update_command}`)"),
-            self.highlighted == UpdateSelection::UpdateNow,
-        ));
-        column.push(selection_option_row(
-            1,
-            "Skip".to_string(),
-            self.highlighted == UpdateSelection::NotNow,
-        ));
-        column.push(selection_option_row(
-            2,
-            "Skip until next version".to_string(),
-            self.highlighted == UpdateSelection::DontRemind,
-        ));
+        for (idx, opt) in self.options.iter().copied().enumerate() {
+            column.push(selection_option_row(
+                idx,
+                opt.label(),
+                self.highlighted_idx == idx,
+            ));
+        }
         column.push("");
         column.push(
             Line::from(vec![
@@ -253,7 +279,7 @@ mod tests {
         UpdatePromptScreen::new(
             FrameRequester::test_dummy(),
             "9.9.9".into(),
-            UpdateAction::NpmGlobalLatest,
+            vec![UpdateAction::NpmGlobalLatest],
         )
     }
 
@@ -306,8 +332,26 @@ mod tests {
     fn update_prompt_navigation_wraps_between_entries() {
         let mut screen = new_prompt();
         screen.handle_key(KeyEvent::new(KeyCode::Up, KeyModifiers::NONE));
-        assert_eq!(screen.highlighted, UpdateSelection::DontRemind);
+        assert_eq!(screen.highlighted_idx, 2);
         screen.handle_key(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
-        assert_eq!(screen.highlighted, UpdateSelection::UpdateNow);
+        assert_eq!(screen.highlighted_idx, 0);
+    }
+
+    #[test]
+    fn update_prompt_supports_multiple_update_actions() {
+        let mut screen = UpdatePromptScreen::new(
+            FrameRequester::test_dummy(),
+            "9.9.9".into(),
+            vec![
+                UpdateAction::NpmGlobalLatest,
+                UpdateAction::PnpmGlobalLatest,
+            ],
+        );
+        screen.handle_key(KeyEvent::new(KeyCode::Char('2'), KeyModifiers::NONE));
+        assert!(screen.is_done());
+        assert_eq!(
+            screen.selection(),
+            Some(UpdateSelection::UpdateNow(UpdateAction::PnpmGlobalLatest))
+        );
     }
 }

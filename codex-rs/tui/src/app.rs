@@ -1146,7 +1146,7 @@ impl App {
                     tui,
                     AppEvent::InsertHistoryCell(Box::new(UpdateAvailableHistoryCell::new(
                         latest_version,
-                        crate::update_action::get_update_action(),
+                        crate::update_action::get_update_actions(),
                     ))),
                 )
                 .await?;
@@ -2950,6 +2950,7 @@ mod tests {
                 app.chat_widget.current_model(),
                 event,
                 is_first,
+                None,
             )) as Arc<dyn HistoryCell>
         };
 

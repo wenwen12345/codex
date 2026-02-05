@@ -3,7 +3,10 @@ use codex_protocol::config_types::CollaborationModeMask;
 use codex_protocol::config_types::ModeKind;
 
 fn is_tui_mode(kind: ModeKind) -> bool {
-    matches!(kind, ModeKind::Plan | ModeKind::Code)
+    matches!(
+        kind,
+        ModeKind::Plan | ModeKind::Code | ModeKind::PairProgramming | ModeKind::Execute
+    )
 }
 
 fn filtered_presets(models_manager: &ModelsManager) -> Vec<CollaborationModeMask> {

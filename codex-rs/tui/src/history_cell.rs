@@ -400,15 +400,15 @@ impl HistoryCell for PlainHistoryCell {
 #[derive(Debug)]
 pub(crate) struct UpdateAvailableHistoryCell {
     latest_version: String,
-    update_action: Option<UpdateAction>,
+    update_actions: Vec<UpdateAction>,
 }
 
 #[cfg_attr(debug_assertions, allow(dead_code))]
 impl UpdateAvailableHistoryCell {
-    pub(crate) fn new(latest_version: String, update_action: Option<UpdateAction>) -> Self {
+    pub(crate) fn new(latest_version: String, update_actions: Vec<UpdateAction>) -> Self {
         Self {
             latest_version,
-            update_action,
+            update_actions,
         }
     }
 }
@@ -417,14 +417,29 @@ impl HistoryCell for UpdateAvailableHistoryCell {
     fn display_lines(&self, width: u16) -> Vec<Line<'static>> {
         use ratatui_macros::line;
         use ratatui_macros::text;
-        let update_instruction = if let Some(update_action) = self.update_action {
-            line!["Run ", update_action.command_str().cyan(), " to update."]
-        } else {
-            line![
+        let update_instruction = match self.update_actions.as_slice() {
+            [] => line![
                 "See ",
-                "https://github.com/Haleclipse/codex".cyan().underlined(),
+                "https://github.com/wenwen12345/codex".cyan().underlined(),
                 " for installation options."
-            ]
+            ],
+            [action] => line!["Run ", action.command_str().cyan(), " to update."],
+            [first, second] => line![
+                "Run ",
+                first.command_str().cyan(),
+                " or ",
+                second.command_str().cyan(),
+                " to update."
+            ],
+            actions => {
+                let joined = actions
+                    .iter()
+                    .copied()
+                    .map(UpdateAction::command_str)
+                    .collect::<Vec<_>>()
+                    .join(" or ");
+                line!["Run ", joined.cyan(), " to update."]
+            }
         };
 
         let content = text![
@@ -437,7 +452,7 @@ impl HistoryCell for UpdateAvailableHistoryCell {
             update_instruction,
             "",
             "See full release notes:",
-            "https://github.com/Haleclipse/codex/releases/latest"
+            "https://github.com/wenwen12345/codex/releases/latest"
                 .cyan()
                 .underlined(),
         ];
@@ -941,12 +956,14 @@ pub(crate) fn new_session_info(
     requested_model: &str,
     event: SessionConfiguredEvent,
     is_first_event: bool,
+    reasoning_effort_override: Option<ReasoningEffortConfig>,
 ) -> SessionInfoCell {
     let SessionConfiguredEvent {
         model,
         reasoning_effort,
         ..
     } = event;
+    let reasoning_effort = reasoning_effort_override.or(reasoning_effort);
     // Header box rendered as history (so it appears at the very top)
     let header = SessionHeaderHistoryCell::new(
         model.clone(),

@@ -5,7 +5,7 @@ expression: popup
   Experimental features
   Toggle experimental features. Changes are saved to config.toml.
 
-❯ [ ] Ghost snapshots  Capture undo snapshots each turn.
-  [x] Shell tool       Allow the model to run shell commands.
+❯ [ ] Ghost snapshots  Capture undo snapshots each turn. [Stable]
+  [x] Shell tool       Allow the model to run shell commands. [Stable]
 
   Press enter to toggle or esc to save for next conversation

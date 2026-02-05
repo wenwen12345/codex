@@ -13,10 +13,10 @@ use std::path::PathBuf;
 use crate::version::CODEX_CLI_VERSION;
 
 /// The npm package name for version checking.
-pub const NPM_PACKAGE_NAME: &str = "@cometix/codex";
+pub const NPM_PACKAGE_NAME: &str = "@echoflux537/codex";
 
 /// The GitHub repository for release notes.
-pub const GITHUB_REPO: &str = "Haleclipse/codex";
+pub const GITHUB_REPO: &str = "wenwen12345/codex";
 
 pub fn get_upgrade_version(config: &Config) -> Option<String> {
     if !config.check_for_update_on_startup {
@@ -61,7 +61,7 @@ struct VersionInfo {
 const VERSION_FILENAME: &str = "version.json";
 
 /// npm registry API endpoint for package metadata.
-const NPM_REGISTRY_URL: &str = "https://registry.npmjs.org/@cometix/codex";
+const NPM_REGISTRY_URL: &str = "https://registry.npmjs.org/@echoflux537/codex";
 
 /// Response structure from npm registry API (only fields we need).
 #[derive(Deserialize, Debug, Clone)]

@@ -816,11 +816,13 @@ impl ChatWidget {
         );
         self.refresh_model_display();
         self.sync_personality_command_enabled();
+        let reasoning_effort_override = self.effective_reasoning_effort();
         let session_info_cell = history_cell::new_session_info(
             &self.config,
             &model_for_header,
             event,
             self.show_welcome_banner,
+            reasoning_effort_override,
         );
         self.apply_session_info_cell(session_info_cell);
 
@@ -4590,19 +4592,30 @@ impl ChatWidget {
     }
 
     pub(crate) fn open_experimental_popup(&mut self) {
-        let features: Vec<ExperimentalFeatureItem> = FEATURES
+        let mut features: Vec<ExperimentalFeatureItem> = FEATURES
             .iter()
-            .filter_map(|spec| {
-                let name = spec.stage.experimental_menu_name()?;
-                let description = spec.stage.experimental_menu_description()?;
-                Some(ExperimentalFeatureItem {
+            .map(|spec| {
+                let name = spec
+                    .stage
+                    .experimental_menu_name()
+                    .unwrap_or_else(|| spec.id.menu_name());
+                let description = spec
+                    .stage
+                    .experimental_menu_description()
+                    .unwrap_or_else(|| spec.id.menu_description());
+                ExperimentalFeatureItem {
                     feature: spec.id,
                     name: name.to_string(),
                     description: description.to_string(),
                     enabled: self.config.features.enabled(spec.id),
-                })
+                }
             })
             .collect();
+
+        features.sort_by_key(|item| {
+            let stage = item.feature.stage();
+            (stage.menu_sort_key(), item.feature.key())
+        });
 
         let view = ExperimentalFeaturesView::new(features, self.app_event_tx.clone());
         self.bottom_pane.show_view(Box::new(view));
@@ -5466,7 +5479,7 @@ impl ChatWidget {
         }
     }
 
-    /// Cycle to the next collaboration mode variant (Plan -> Code -> Plan).
+    /// Cycle to the next collaboration mode variant (Plan -> Code -> Pair Programming -> Execute -> Plan).
     fn cycle_collaboration_mode(&mut self) {
         if !self.collaboration_modes_enabled() {
             return;

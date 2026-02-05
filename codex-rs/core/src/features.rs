@@ -66,6 +66,26 @@ impl Stage {
             _ => None,
         }
     }
+
+    pub fn menu_label(self) -> &'static str {
+        match self {
+            Stage::Stable => "Stable",
+            Stage::Experimental { .. } => "Experimental",
+            Stage::UnderDevelopment => "Under development",
+            Stage::Deprecated => "Deprecated",
+            Stage::Removed => "Removed",
+        }
+    }
+
+    pub fn menu_sort_key(self) -> u8 {
+        match self {
+            Stage::Experimental { .. } => 0,
+            Stage::UnderDevelopment => 1,
+            Stage::Stable => 2,
+            Stage::Deprecated => 3,
+            Stage::Removed => 4,
+        }
+    }
 }
 
 /// Unique features toggled via configuration.
@@ -140,6 +160,74 @@ impl Feature {
 
     pub fn default_enabled(self) -> bool {
         self.info().default_enabled
+    }
+
+    pub fn menu_name(self) -> &'static str {
+        match self {
+            Feature::GhostCommit => "Ghost snapshots",
+            Feature::ShellTool => "Shell tool",
+            Feature::UnifiedExec => "Background terminal",
+            Feature::ApplyPatchFreeform => "Freeform apply_patch",
+            Feature::WebSearchRequest => "Web search (request)",
+            Feature::WebSearchCached => "Web search (cached)",
+            Feature::ExecPolicy => "Exec policy",
+            Feature::RequestRule => "Request rule",
+            Feature::WindowsSandbox => "Windows sandbox",
+            Feature::WindowsSandboxElevated => "Windows sandbox (elevated)",
+            Feature::RemoteCompaction => "Remote compaction",
+            Feature::RemoteModels => "Remote models",
+            Feature::ShellSnapshot => "Shell snapshot",
+            Feature::RuntimeMetrics => "Runtime metrics",
+            Feature::Sqlite => "SQLite",
+            Feature::ChildAgentsMd => "Child AGENTS.md",
+            Feature::PowershellUtf8 => "PowerShell UTF-8",
+            Feature::EnableRequestCompression => "Request compression",
+            Feature::Collab => "Collab tools",
+            Feature::Apps => "Apps",
+            Feature::SkillMcpDependencyInstall => "Skill MCP dependency install",
+            Feature::SkillEnvVarDependencyPrompt => "Skill env var prompt",
+            Feature::Steer => "Steer conversation",
+            Feature::CollaborationModes => "Collaboration modes",
+            Feature::Personality => "Personality",
+            Feature::ResponsesWebsockets => "Responses websockets",
+        }
+    }
+
+    pub fn menu_description(self) -> &'static str {
+        match self {
+            Feature::GhostCommit => "Capture undo snapshots each turn.",
+            Feature::ShellTool => "Allow the model to run shell commands.",
+            Feature::UnifiedExec => "Run long-running terminal commands in the background.",
+            Feature::ApplyPatchFreeform => "Enable the freeform apply_patch tool.",
+            Feature::WebSearchRequest => "Deprecated. Use `web_search` instead.",
+            Feature::WebSearchCached => "Deprecated. Use `web_search` instead.",
+            Feature::ExecPolicy => "Enforce exec-policy safety checks for shell tools.",
+            Feature::RequestRule => "Allow requesting approval and proposing exec rules.",
+            Feature::WindowsSandbox => "Enable the restricted-token Windows sandbox.",
+            Feature::WindowsSandboxElevated => "Enable the elevated Windows sandbox pipeline.",
+            Feature::RemoteCompaction => "Enable remote compaction (ChatGPT auth only).",
+            Feature::RemoteModels => "Refresh remote models and emit AppReady when ready.",
+            Feature::ShellSnapshot => {
+                "Snapshot your shell environment to avoid re-running login scripts."
+            }
+            Feature::RuntimeMetrics => "Enable runtime metrics snapshots via a manual reader.",
+            Feature::Sqlite => "Persist rollout metadata to a local SQLite database.",
+            Feature::ChildAgentsMd => "Append additional AGENTS.md guidance to child agents.",
+            Feature::PowershellUtf8 => "Enforce UTF-8 output in PowerShell.",
+            Feature::EnableRequestCompression => "Compress streaming request bodies (zstd).",
+            Feature::Collab => "Enable collaboration tools.",
+            Feature::Apps => "Use a connected ChatGPT App using \"$\" mentions.",
+            Feature::SkillMcpDependencyInstall => "Prompt to install missing MCP dependencies.",
+            Feature::SkillEnvVarDependencyPrompt => {
+                "Prompt for missing environment variable dependencies for skills."
+            }
+            Feature::Steer => "Enter submits immediately; Tab queues messages when busy.",
+            Feature::CollaborationModes => {
+                "Enable collaboration modes (Plan, Code, Pair Programming, Execute)."
+            }
+            Feature::Personality => "Enable personality selection in the TUI.",
+            Feature::ResponsesWebsockets => "Use the Responses API WebSocket transport by default.",
+        }
     }
 
     fn info(self) -> &'static FeatureSpec {

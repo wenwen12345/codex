@@ -42,11 +42,11 @@ impl Segment for ModelSegment {
 fn reasoning_effort_suffix(effort: ReasoningEffort) -> &'static str {
     match effort {
         ReasoningEffort::None => "",
-        ReasoningEffort::Minimal => "·min",
-        ReasoningEffort::Low => "·lo",
-        ReasoningEffort::Medium => "·med",
-        ReasoningEffort::High => "·hi",
-        ReasoningEffort::XHigh => "·xhi",
+        ReasoningEffort::Minimal => "Minimal",
+        ReasoningEffort::Low => "Low",
+        ReasoningEffort::Medium => "Medium",
+        ReasoningEffort::High => "High",
+        ReasoningEffort::XHigh => "Xhigh",
     }
 }
 
