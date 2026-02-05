@@ -192,6 +192,7 @@ impl Feature {
             Feature::CollaborationModes => "Collaboration modes",
             Feature::Personality => "Personality",
             Feature::ResponsesWebsockets => "Responses websockets",
+            Feature::UseLinuxSandboxBwrap => "Use the bubblewrap"
         }
     }
 
@@ -229,6 +230,7 @@ impl Feature {
             }
             Feature::Personality => "Enable personality selection in the TUI.",
             Feature::ResponsesWebsockets => "Use the Responses API WebSocket transport by default.",
+            Feature::UseLinuxSandboxBwrap => "Use the bubblewrap-based Linux sandbox pipeline.",
         }
     }
 
