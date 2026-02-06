@@ -27,6 +27,7 @@ pub enum SlashCommand {
     Init,
     Compact,
     Cxline,
+    Translate,
     Plan,
     Collab,
     Agent,
@@ -77,6 +78,7 @@ impl SlashCommand {
             SlashCommand::ElevateSandbox => "set up elevated agent sandbox",
             SlashCommand::Experimental => "toggle experimental features",
             SlashCommand::Cxline => "configure statusline appearance",
+            SlashCommand::Translate => "configure reasoning translation",
             SlashCommand::Mcp => "list configured MCP tools",
             SlashCommand::Apps => "manage apps",
             SlashCommand::Logout => "log out of Codex",
@@ -115,6 +117,7 @@ impl SlashCommand {
             | SlashCommand::ElevateSandbox
             | SlashCommand::Experimental
             | SlashCommand::Cxline
+            | SlashCommand::Translate
             | SlashCommand::Review
             | SlashCommand::Plan
             | SlashCommand::Logout => false,

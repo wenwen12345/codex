@@ -887,6 +887,7 @@ async fn make_chatwidget_manual(
         interrupts: InterruptManager::new(),
         reasoning_buffer: String::new(),
         full_reasoning_buffer: String::new(),
+        agent_reasoning_translation: crate::translation::ReasoningTranslator::default(),
         current_status_header: String::from("Working"),
         retry_status_header: None,
         thread_id: None,
@@ -914,6 +915,7 @@ async fn make_chatwidget_manual(
         current_rollout_path: None,
         external_editor_state: ExternalEditorState::Closed,
         statusline_git_poller: None,
+        translation_config: crate::translation::TranslationConfig::default(),
     };
     widget.set_model(&resolved_model);
     (widget, rx, op_rx)

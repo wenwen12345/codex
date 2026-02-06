@@ -49,6 +49,7 @@ pub(crate) enum Overlay {
     Transcript(TranscriptOverlay),
     Static(StaticOverlay),
     Cxline(Box<crate::cxline_overlay::CxlineOverlay>),
+    Translate(Box<crate::translate_overlay::TranslateOverlay>),
 }
 
 impl Overlay {
@@ -72,6 +73,7 @@ impl Overlay {
             Overlay::Transcript(o) => o.handle_event(tui, event),
             Overlay::Static(o) => o.handle_event(tui, event),
             Overlay::Cxline(o) => o.handle_event(tui, event),
+            Overlay::Translate(o) => o.handle_event(tui, event),
         }
     }
 
@@ -80,6 +82,7 @@ impl Overlay {
             Overlay::Transcript(o) => o.is_done(),
             Overlay::Static(o) => o.is_done(),
             Overlay::Cxline(o) => o.is_done(),
+            Overlay::Translate(o) => o.is_done(),
         }
     }
 
@@ -92,6 +95,23 @@ impl Overlay {
     pub(crate) fn take_cxline_config(&mut self) -> Option<crate::statusline::config::CxLineConfig> {
         match self {
             Overlay::Cxline(o) => Some(o.config()),
+            _ => None,
+        }
+    }
+
+    /// 创建 Translation 配置 Overlay
+    pub(crate) fn new_translate(config: crate::translation::TranslationConfig) -> Self {
+        Self::Translate(Box::new(crate::translate_overlay::TranslateOverlay::new(
+            &config,
+        )))
+    }
+
+    /// 如果是 Translate Overlay，获取配置
+    pub(crate) fn take_translate_config(
+        &mut self,
+    ) -> Option<crate::translation::TranslationConfig> {
+        match self {
+            Overlay::Translate(o) => Some(o.config()),
             _ => None,
         }
     }

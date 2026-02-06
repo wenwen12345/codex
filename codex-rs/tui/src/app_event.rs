@@ -299,6 +299,9 @@ pub(crate) enum AppEvent {
 
     /// Open the CxLine configuration screen (full-screen).
     OpenCxlineConfig,
+
+    /// Open the translation configuration screen (full-screen).
+    OpenTranslateConfig,
 }
 
 /// The exit strategy requested by the UI layer.

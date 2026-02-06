@@ -19,13 +19,14 @@ Then run `codex` to get started.
 This fork includes the following enhancements over the upstream [openai/codex](https://github.com/openai/codex):
 
 - **StatusLine (CxLine)** — Bottom status bar displaying model name, reasoning effort, usage percentage, and rate limit reset time
+- **Reasoning Translation** — Real-time translation of agent reasoning content via `/translate` command, supporting 15+ LLM providers (OpenAI, Anthropic, DeepSeek, Moonshot, Qwen, Groq, Gemini, etc.)
 - **Personality for all models** — The Personality feature is enabled for every model, not limited to select ones
 - **CJK block cursor fix** — Correct block cursor width for CJK characters on Windows Terminal
 - **Update detection via npm** — Version checking uses the `@echoflux537/codex` npm registry instead of GitHub releases
 
 ## Upstream Sync
 
-This fork is regularly synced with the upstream OpenAI Codex repository. Current base: **0.94.0**.
+This fork is regularly synced with the upstream OpenAI Codex repository. Current base: **0.98.0**.
 
 ## Using Codex with your ChatGPT plan
 

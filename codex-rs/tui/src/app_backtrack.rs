@@ -107,8 +107,11 @@ impl App {
         tui: &mut tui::Tui,
         event: TuiEvent,
     ) -> Result<bool> {
-        // Cxline overlay 不参与 backtrack 逻辑，直接转发所有事件
-        if matches!(&self.overlay, Some(Overlay::Cxline(_))) {
+        // Cxline 和 Translate overlay 不参与 backtrack 逻辑，直接转发所有事件
+        if matches!(
+            &self.overlay,
+            Some(Overlay::Cxline(_)) | Some(Overlay::Translate(_))
+        ) {
             self.overlay_forward_event(tui, event)?;
             return Ok(true);
         }
@@ -392,6 +395,10 @@ impl App {
                 // 如果是 CxLine overlay，在关闭前取出配置并应用
                 if let Some(config) = overlay.take_cxline_config() {
                     self.chat_widget.set_statusline_config(config);
+                }
+                // 如果是 Translate overlay，在关闭前取出配置并应用
+                if let Some(config) = overlay.take_translate_config() {
+                    self.chat_widget.set_translation_config(config);
                 }
                 self.close_transcript_overlay(tui);
                 tui.frame_requester().schedule_frame();

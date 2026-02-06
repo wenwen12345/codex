@@ -1236,6 +1236,10 @@ impl App {
                     self.chat_widget.handle_paste(pasted);
                 }
                 TuiEvent::Draw => {
+                    // Process translation results and timeouts
+                    if self.chat_widget.translation_draw_tick() {
+                        tui.frame_requester().schedule_frame();
+                    }
                     if self.backtrack_render_pending {
                         self.backtrack_render_pending = false;
                         self.render_transcript_once(tui);
@@ -2209,6 +2213,13 @@ impl App {
                 let config = self.chat_widget.get_statusline_config();
                 let _ = tui.enter_alt_screen();
                 self.overlay = Some(Overlay::new_cxline(config));
+                tui.frame_requester().schedule_frame();
+            }
+            AppEvent::OpenTranslateConfig => {
+                // Open translation configuration overlay
+                let config = self.chat_widget.get_translation_config();
+                let _ = tui.enter_alt_screen();
+                self.overlay = Some(Overlay::new_translate(config));
                 tui.frame_requester().schedule_frame();
             }
         }

@@ -277,6 +277,8 @@ impl HistoryCell for UserHistoryCell {
 
 #[derive(Debug)]
 pub(crate) struct ReasoningSummaryCell {
+    /// Header is stored but not directly displayed (prefixed with _ to indicate intentional non-use).
+    /// It's used for building full_markdown_for_translation.
     _header: String,
     content: String,
     transcript_only: bool,
@@ -289,6 +291,16 @@ impl ReasoningSummaryCell {
             content,
             transcript_only,
         }
+    }
+
+    /// Returns the full markdown for translation, if this cell should be translated.
+    /// Returns header + content combined for the translator to process.
+    pub(crate) fn full_markdown_for_translation(&self) -> Option<String> {
+        // Only translate if we have a header (the **Title** part)
+        if self._header.trim().is_empty() {
+            return None;
+        }
+        Some(format!("{}{}", self._header, self.content))
     }
 
     fn lines(&self, width: u16) -> Vec<Line<'static>> {
@@ -2133,6 +2145,99 @@ pub(crate) fn new_reasoning_summary_block(full_reasoning_buffer: String) -> Box<
         full_reasoning_buffer.to_string(),
         true,
     ))
+}
+
+/// Create a translation result cell for reasoning content.
+pub(crate) fn new_agent_reasoning_translation_block(
+    title: Option<String>,
+    translated: String,
+) -> Box<dyn HistoryCell> {
+    Box::new(AgentReasoningTranslationCell::new(title, translated, false))
+}
+
+/// Create a translation error cell for reasoning content.
+pub(crate) fn new_agent_reasoning_translation_error_block(
+    title: Option<String>,
+    reason: String,
+) -> Box<dyn HistoryCell> {
+    Box::new(AgentReasoningTranslationCell::new(title, reason, true))
+}
+
+/// Cell for displaying translated reasoning content.
+#[derive(Debug)]
+pub(crate) struct AgentReasoningTranslationCell {
+    title: Option<String>,
+    content: String,
+    is_error: bool,
+}
+
+impl AgentReasoningTranslationCell {
+    pub(crate) fn new(title: Option<String>, content: String, is_error: bool) -> Self {
+        Self {
+            title,
+            content,
+            is_error,
+        }
+    }
+
+    fn lines(&self, width: u16) -> Vec<Line<'static>> {
+        let mut md_lines: Vec<Line<'static>> = Vec::new();
+        append_markdown(
+            &self.content,
+            Some((width as usize).saturating_sub(4).max(1)),
+            &mut md_lines,
+        );
+
+        // Apply dim style to match reasoning content
+        let translation_style = Style::default().dim();
+        let styled_md_lines = md_lines
+            .into_iter()
+            .map(|mut line| {
+                line.spans = line
+                    .spans
+                    .into_iter()
+                    .map(|span| span.patch_style(translation_style))
+                    .collect();
+                line
+            })
+            .collect::<Vec<_>>();
+
+        if self.is_error {
+            let mut out: Vec<Line<'static>> = Vec::new();
+            let mut header: Vec<Span<'static>> = Vec::new();
+            header.push("  └ ".dim());
+            header.push("Translation failed".red().bold());
+            if let Some(title) = &self.title {
+                header.push(" ".into());
+                header.push(format!("({title})").dim());
+            }
+            out.push(Line::from(header));
+            out.extend(prefix_lines(styled_md_lines, "    ".into(), "    ".into()));
+            return out;
+        }
+
+        // Success: output translation content directly without extra title line,
+        // to avoid having one more line than the original content.
+        prefix_lines(styled_md_lines, "  └ ".dim(), "    ".into())
+    }
+}
+
+impl HistoryCell for AgentReasoningTranslationCell {
+    fn display_lines(&self, width: u16) -> Vec<Line<'static>> {
+        self.lines(width)
+    }
+
+    fn desired_height(&self, width: u16) -> u16 {
+        self.lines(width).len() as u16
+    }
+
+    fn transcript_lines(&self, width: u16) -> Vec<Line<'static>> {
+        self.lines(width)
+    }
+
+    fn desired_transcript_height(&self, width: u16) -> u16 {
+        self.lines(width).len() as u16
+    }
 }
 
 #[derive(Debug)]
